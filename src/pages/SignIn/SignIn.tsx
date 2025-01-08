@@ -1,8 +1,10 @@
 import { faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 import config from '~/configs';
+import { updateUser } from '~/redux/userSlice';
 import { signIn } from '~/services/UserService';
 
 interface IFormInput {
@@ -17,13 +19,19 @@ export default function SignIn() {
         formState: { errors },
     } = useForm<IFormInput>();
 
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
+
+    const dispatch = useDispatch();
 
     const onSubmit = async (data: IFormInput) => {
         try {
-            const res = await signIn(data);
-            console.log(res);
-            // navigate(config.routes.home);
+            const { user: {id, name, email, avatar }, accessToken } = await signIn(data);
+            if (accessToken) {
+                localStorage.setItem('accessToken', accessToken);
+            }
+            console.log(id, name, email, avatar, accessToken);
+            dispatch(updateUser({ id, name, email, avatar }));
+            navigate(config.routes.home);
         } catch (error) {
             console.error(error);
         }
