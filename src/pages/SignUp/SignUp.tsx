@@ -1,10 +1,10 @@
-import React from 'react';
 import { faLock, faSignature, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import config from '~/configs';
 import { signUp } from '~/services/UserService';
+import { useLoading } from '~/context/LoadingContext';
 
 interface IFormInput {
     name: string;
@@ -20,13 +20,22 @@ export default function SignUp() {
         formState: { errors },
         watch,
     } = useForm<IFormInput>();
+
     const password = watch('password');
+
+    const navigate = useNavigate();
+
+    const setLoading = useLoading();
 
     const onSubmit = async (data: IFormInput) => {
         try {
             await signUp(data);
+            navigate(config.routes.signIn);
+            setLoading(true);
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
 
