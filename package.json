@@ -20,6 +20,7 @@
     "@types/draftjs-to-html": "^0.8.4",
     "@types/react-draft-wysiwyg": "^1.13.8",
     "axios": "^1.7.9",
+    "clsx": "^2.1.1",
     "draft-js": "^0.11.7",
     "draftjs-to-html": "^0.9.1",
     "fbjs": "^3.0.5",

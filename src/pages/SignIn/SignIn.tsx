@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import config from '~/configs';
+import { useLoading } from '~/context/LoadingContext';
 import { updateUser } from '~/redux/userSlice';
 import { signIn } from '~/services/UserService';
 
@@ -21,23 +22,33 @@ export default function SignIn() {
 
     const navigate = useNavigate();
 
+    const setLoading = useLoading();
+
     const dispatch = useDispatch();
 
     const onSubmit = async (data: IFormInput) => {
         try {
-            const { user: {id, name, email, avatar }, accessToken } = await signIn(data);
-            if (accessToken) {
-                localStorage.setItem('accessToken', accessToken);
+            setLoading(true);
+            const response = await signIn(data);
+            if (response && response.user) {
+                const { id, name, email } = response.user;
+                dispatch(updateUser({ id, name, email }));
+                localStorage.setItem('id', JSON.stringify(id));
+                navigate(config.routes.home);
+            } else {
+                console.error(
+                    'User data is missing from the response:',
+                    response
+                );
             }
-            console.log(id, name, email, avatar, accessToken);
-            dispatch(updateUser({ id, name, email, avatar }));
-            navigate(config.routes.home);
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
     return (
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form onSubmit={handleSubmit(onSubmit)}>
             <h3 className="mb-10 text-2xl text-white font-bold font-heading">
                 Đăng nhập
             </h3>

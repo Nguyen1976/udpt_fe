@@ -29,9 +29,9 @@ export default function SignUp() {
 
     const onSubmit = async (data: IFormInput) => {
         try {
+            setLoading(true);
             await signUp(data);
             navigate(config.routes.signIn);
-            setLoading(true);
         } catch (error) {
             console.error(error);
         } finally {
@@ -40,7 +40,7 @@ export default function SignUp() {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form onSubmit={handleSubmit(onSubmit)}>
             <h3 className="mb-10 text-2xl text-white font-bold font-heading">
                 Đăng ký tài khoản
             </h3>
