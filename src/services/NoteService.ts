@@ -22,3 +22,8 @@ export const deleteNote = async (noteId: string) => {
     const res = await apiClient.delete(`/delete/${noteId}`);
     return res.data;
 }
+
+export const createNote = async (data: unknown) => {
+    const res = await apiClient.post(`/create`, data);
+    return res.data;
+}

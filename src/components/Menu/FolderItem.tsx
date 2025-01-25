@@ -1,7 +1,12 @@
-import { faFolder, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+    faFolder,
+    faPlus,
+    faTrash,
+    faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
-import { deleteNote, getAllNote } from '~/services/NoteService';
+import { createNote, deleteNote, getAllNote } from '~/services/NoteService';
 import { updateNote } from '~/redux/noteSlice';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -75,6 +80,22 @@ const FolderItem = ({ setReload, name, id }: FolderItemProps) => {
             setLoading(false);
         }
     };
+
+    const addNote = async () => {
+        try {
+            setLoading(true);
+            const res = await createNote({
+                folderId: id,
+                content: '',
+            })
+            navigate(`/?noteId=${res.note.id}`);
+            setReloadNote((prev) => !prev);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         <details className="group">
             <summary className="flex items-center justify-between gap-2 p-2 font-medium marker:content-none hover:cursor-pointer">
@@ -110,7 +131,7 @@ const FolderItem = ({ setReload, name, id }: FolderItemProps) => {
                         ) => (
                             <li
                                 key={index}
-                                className={`hover:text-zinc-700 p-2 rounded-md overflow-hidden flex items-center gap-2 justify-between, ${
+                                className={`hover:text-zinc-700 p-2 rounded-md overflow-hidden flex items-center justify-between, ${
                                     noteId === item.id ? 'bg-zinc-500' : ''
                                 }`}
                             >
@@ -122,7 +143,7 @@ const FolderItem = ({ setReload, name, id }: FolderItemProps) => {
                                 >
                                     {item.content.replace(/(<([^>]+)>)/gi, '')}
                                 </p>
-                                <span>
+                                <span className='text-right'>
                                     <FontAwesomeIcon
                                         className="hover:text-red-500 cursor-pointer"
                                         icon={faXmark}
@@ -132,6 +153,12 @@ const FolderItem = ({ setReload, name, id }: FolderItemProps) => {
                             </li>
                         )
                     )}
+                    <li
+                        className="hover:text-zinc-400 p-2 rounded-md overflow-hidden flex items-center gap-2 justify-center hover:bg-slate-500"
+                        onClick={addNote}
+                    >
+                        <FontAwesomeIcon icon={faPlus} />
+                    </li>
                 </ul>
             </article>
         </details>

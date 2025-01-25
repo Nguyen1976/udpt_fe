@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLoading } from '~/context/LoadingContext';
+import { useToast } from '~/context/ToastContext';
 import { createFolder } from '~/services/FolderService';
 
 interface NewFolderProps {
@@ -10,6 +11,7 @@ interface NewFolderProps {
 export default function NewFolder({ setPopUp }: NewFolderProps) {
     const [name, setName] = useState<string>('');
     const setLoading = useLoading();
+    const { addToast } = useToast();
 
     const navigate = useNavigate();
 
@@ -25,6 +27,7 @@ export default function NewFolder({ setPopUp }: NewFolderProps) {
             const userId = JSON.parse(localStorage.getItem('id') ?? 'null');
             await createFolder({ name, userId });
             handleClose();
+            addToast('Thêm folder thành công', 'success');
         } catch (error) {
             console.error(error);
         } finally {
