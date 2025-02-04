@@ -5,6 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFolderPlus } from '@fortawesome/free-solid-svg-icons';
 import NewFolder from '~/components/NewFolder';
 import { useSearchParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '~/redux/store';
 
 export default function Menu() {
     const [open, setOpen] = useState(false);
@@ -15,6 +17,8 @@ export default function Menu() {
     >([]);
     const [searchParams, setSearchParams] = useSearchParams();
     const popupName = searchParams.get('popup');
+
+    const content = useSelector((state: RootState) => state.note.content);
     useEffect(() => {
         const fetchFolder = async () => {
             try {
@@ -41,7 +45,7 @@ export default function Menu() {
     }, [popupName]);
 
     return (
-        <div className="mt-12 max-w-[280px] mx-auto bg-slate-200 p-2 rounded-md">
+        <div className="mt-12 max-w-[280px] mx-auto bg-slate-200 p-2 rounded-md" key={content}>
             <div className="mx-2 border-b-[1px] border-slate-500 pb-2 flex items-center justify-between text-2xl">
                 <h1 className="font-bold ">Folder</h1>
                 <FontAwesomeIcon

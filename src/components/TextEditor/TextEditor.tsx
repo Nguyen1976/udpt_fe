@@ -1,11 +1,6 @@
 import { Editor } from 'react-draft-wysiwyg';
 import draftToHtml from 'draftjs-to-html';
-import {
-    convertToRaw,
-    EditorState,
-    ContentState,
-    convertFromHTML,
-} from 'draft-js';
+import { convertToRaw, EditorState, ContentState, convertFromHTML } from 'draft-js';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '~/redux/store';
@@ -14,16 +9,16 @@ import { useLoading } from '~/context/LoadingContext';
 import { updateNote } from '~/redux/noteSlice';
 
 export default function TextEditor() {
-    const [editorState, setEditorState] = useState(() =>
-        EditorState.createEmpty()
-    );
-    const note = useSelector((state: RootState) => state.note); // Lấy dữ liệu từ Redux state
-    const [content, setContent] = useState<string>(''); // Nội dung sẽ lưu vào DB
+    const dispatch = useDispatch();
+    const setLoading = useLoading();
+    const note = useSelector((state: RootState) => state.note);
+    const noteId = new URLSearchParams(window.location.search).get('noteId');
+    
+    const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+    const [content, setContent] = useState('');
 
-    // Đồng bộ nội dung từ Redux state (note) vào Editor
     useEffect(() => {
-        if (note && note.content) {
-            // Chuyển đổi HTML (nếu có) thành EditorState
+        if (note?.content) {
             const blocksFromHTML = convertFromHTML(note.content);
             const contentState = ContentState.createFromBlockArray(
                 blocksFromHTML.contentBlocks,
@@ -33,32 +28,17 @@ export default function TextEditor() {
         }
     }, [note]);
 
-    // Lắng nghe thay đổi của Editor và cập nhật nội dung
-    const handleEditorChange = (editorState: EditorState) => {
-        setEditorState(editorState);
-
-        const rawHTML = draftToHtml(
-            convertToRaw(editorState.getCurrentContent())
-        );
-        setContent(rawHTML); // Cập nhật nội dung thô (HTML) để lưu vào DB
+    const handleEditorChange = (state: EditorState) => {
+        setEditorState(state);
+        setContent(draftToHtml(convertToRaw(state.getCurrentContent())));
     };
 
-    useEffect(() => {
-        console.log('Nội dung đã chỉnh sửa:', content);
-    }, [content]);
-
-    const { search } = window.location;
-    const params = new URLSearchParams(search);
-    const noteId = params.get('noteId');
-
-    const dispatch = useDispatch();
-    const setLoading = useLoading();
     const updateNoteContent = async () => {
-        // Gọi API cập nhật note
+        if (!noteId) return;
         try {
             setLoading(true);
-            const res = await updateNoteService({ content, id: noteId });
-            dispatch(updateNote(res.note.content));
+            await updateNoteService({ content, id: noteId });
+            dispatch(updateNote({ content }));
         } catch (error) {
             console.error(error);
         } finally {
@@ -68,9 +48,8 @@ export default function TextEditor() {
 
     return (
         <div className="mt-10">
-            <div className="grid grid-cols-2 gap-5 mt-5">
-                {/* Text Editor */}
-                <div className="col-span-1 min-h-16 mt-2">
+            <div className="mt-5">
+                <div className="min-h-36 mt-2">
                     <Editor
                         editorState={editorState}
                         onEditorStateChange={handleEditorChange}
@@ -86,14 +65,6 @@ export default function TextEditor() {
                             Cập nhật note
                         </button>
                     </div>
-                </div>
-
-                {/* Preview nội dung HTML */}
-                <div className="col-span-1">
-                    <div
-                        className="mt-2 h-full w-full border p-2 overflow-clip"
-                        dangerouslySetInnerHTML={{ __html: content }}
-                    />
                 </div>
             </div>
         </div>

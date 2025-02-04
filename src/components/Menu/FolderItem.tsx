@@ -131,7 +131,7 @@ const FolderItem = ({ setReload, name, id }: FolderItemProps) => {
                         ) => (
                             <li
                                 key={index}
-                                className={`hover:text-zinc-700 p-2 rounded-md overflow-hidden flex items-center justify-between, ${
+                                className={`hover:text-zinc-700 p-2 rounded-md overflow-hidden flex items-center justify-between ${
                                     noteId === item.id ? 'bg-zinc-500' : ''
                                 }`}
                             >

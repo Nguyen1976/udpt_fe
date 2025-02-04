@@ -4,10 +4,19 @@ import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { RootState } from '~/redux/store';
+import { useNavigate } from 'react-router-dom';
+import config from '~/configs';
 
 export default function Header() {
     const [isMenu, setIsMenu] = useState(false);
     const user = useSelector((state: RootState) => state.user);
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem('id');
+        navigate(config.routes.signIn);
+    }
+
 
     return (
         <div className="bg-[#1f2937] text-white flex justify-end items-center px-8 py-2 relative">
@@ -30,6 +39,7 @@ export default function Header() {
                     'absolute top-20 bg-white text-black rounded-md shadow-lg w-32',
                     { block: isMenu, hidden: !isMenu }
                 )}
+                onClick={handleLogout}
             >
                 <p className="p-2">Đăng xuất</p>
             </div>
