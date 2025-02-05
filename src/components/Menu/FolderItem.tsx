@@ -7,11 +7,13 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import { createNote, deleteNote, getAllNote } from '~/services/NoteService';
-import { updateNote } from '~/redux/noteSlice';
-import { useDispatch } from 'react-redux';
+// import { updateNote } from '~/redux/noteSlice';
+// import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { deleteFolder } from '~/services/FolderService';
 import { useLoading } from '~/context/LoadingContext';
+import { useToast } from '~/context/ToastContext';
+import config from '~/configs';
 
 type FolderItemProps = {
     name: string;
@@ -25,8 +27,9 @@ const FolderItem = ({ setReload, name, id }: FolderItemProps) => {
     const { search } = window.location;
     const params = new URLSearchParams(search);
     const noteId = params.get('noteId');
+    const { addToast } = useToast();
 
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
     const navigate = useNavigate();
     const setLoading = useLoading();
 
@@ -43,8 +46,7 @@ const FolderItem = ({ setReload, name, id }: FolderItemProps) => {
         fetchNote();
     }, [reloadNote]);
 
-    const setTextEditor = (id: string, content: string) => {
-        dispatch(updateNote({ content }));
+    const setTextEditor = (id: string) => {
         navigate(`/?noteId=${id}`);
     };
 
@@ -54,11 +56,13 @@ const FolderItem = ({ setReload, name, id }: FolderItemProps) => {
                 setLoading(true);
                 await deleteFolder(id);
                 setReload((prev) => !prev);
+                addToast('Xóa Folder thành công', 'success');
             } else {
                 return;
             }
         } catch (error) {
             console.error(error);
+            addToast('Có lỗi xảy ra', 'error');
         } finally {
             setLoading(false);
         }
@@ -70,7 +74,8 @@ const FolderItem = ({ setReload, name, id }: FolderItemProps) => {
                 setLoading(true);
                 await deleteNote(noteId);
                 setReloadNote((prev) => !prev);
-                navigate('/');
+                navigate(config.routes.home);
+                addToast('Xóa note thành công', 'success');
             } else {
                 return;
             }
@@ -87,11 +92,13 @@ const FolderItem = ({ setReload, name, id }: FolderItemProps) => {
             const res = await createNote({
                 folderId: id,
                 content: '',
-            })
+            });
             navigate(`/?noteId=${res.note.id}`);
             setReloadNote((prev) => !prev);
+            addToast('Thêm note thành công', 'success');
         } catch (error) {
             console.error(error);
+            addToast('Có lỗi xảy ra', 'error');
         } finally {
             setLoading(false);
         }
@@ -137,13 +144,11 @@ const FolderItem = ({ setReload, name, id }: FolderItemProps) => {
                             >
                                 <p
                                     className="cursor-pointer truncate max-w-[30ch]"
-                                    onClick={() =>
-                                        setTextEditor(item.id, item.content)
-                                    }
+                                    onClick={() => setTextEditor(item.id)}
                                 >
                                     {item.content.replace(/(<([^>]+)>)/gi, '')}
                                 </p>
-                                <span className='text-right'>
+                                <span className="text-right">
                                     <FontAwesomeIcon
                                         className="hover:text-red-500 cursor-pointer"
                                         icon={faXmark}

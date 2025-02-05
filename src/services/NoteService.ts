@@ -27,3 +27,8 @@ export const createNote = async (data: unknown) => {
     const res = await apiClient.post(`/create`, data);
     return res.data;
 }
+
+export const getNote = async (id: string) => {
+    const res = await apiClient.get(`/get/${id}`);
+    return res.data;
+}

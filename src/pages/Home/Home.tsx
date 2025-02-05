@@ -8,7 +8,7 @@ import { getDetailUser } from '~/services/UserService';
 export default function Home() {
     const dispatch = useDispatch();
     const fetchUser = async () => {
-        const id = JSON.parse(localStorage.getItem('id') ?? 'null');
+        const id = await JSON.parse(localStorage.getItem('id') ?? 'null');
         try {
             if (id) {
                 const response = await getDetailUser(id);

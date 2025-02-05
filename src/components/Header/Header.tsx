@@ -6,21 +6,28 @@ import clsx from 'clsx';
 import { RootState } from '~/redux/store';
 import { useNavigate } from 'react-router-dom';
 import config from '~/configs';
+import { useToast } from '~/context/ToastContext';
 
 export default function Header() {
     const [isMenu, setIsMenu] = useState(false);
     const user = useSelector((state: RootState) => state.user);
     const navigate = useNavigate();
+    const { addToast } = useToast();
 
     const handleLogout = () => {
         localStorage.removeItem('id');
         navigate(config.routes.signIn);
-    }
-
+        addToast('Đăng xuất thành công', 'success');
+    };
 
     return (
         <div className="bg-[#1f2937] text-white flex justify-end items-center px-8 py-2 relative">
-            <h1 className="text-center text-3xl mr-[40%]">Note App</h1>
+            <h1
+                className="text-center text-3xl mr-[40%] cursor-pointer"
+                onClick={() => navigate(config.routes.home)}
+            >
+                Note App
+            </h1>
             <div
                 className="flex items-center gap-2 hover:bg-[#183052] p-2 rounded-lg"
                 onClick={() => setIsMenu((prev) => !prev)}
